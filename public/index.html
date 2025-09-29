@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sistema de Comandas</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    .hidden { display: none; }
+    #productos input { margin-right: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Selecciona tu rol</h1>
+  <select id="role">
+    <option value="emisor">Emisor</option>
+    <option value="receptor">Receptor</option>
+  </select>
+  <button id="connectBtn">Conectar</button>
+
+  <div id="emisorUI" class="hidden">
+    <h2>Enviar comanda</h2>
+    <div id="productos">
+      <label><input type="checkbox" value="Pizza"> Pizza</label><br>
+      <label><input type="checkbox" value="Hamburguesa"> Hamburguesa</label><br>
+      <label><input type="checkbox" value="Ensalada"> Ensalada</label><br>
+    </div>
+    <button id="enviarComandaBtn">Enviar Comanda</button>
+  </div>
+
+  <div id="receptorUI" class="hidden">
+    <h2>Comandas recibidas</h2>
+    <ul id="listaComandas"></ul>
+  </div>
+
+  <script>
+    let socket;
+
+    document.getElementById("connectBtn").onclick = () => {
+      const role = document.getElementById("role").value;
+      socket = io();
+
+      socket.on("connect", () => {
+        socket.emit("setRole", role);
+        if (role === "emisor") {
+          document.getElementById("emisorUI").classList.remove("hidden");
+        } else {
+          document.getElementById("receptorUI").classList.remove("hidden");
+        }
+      });
+
+      if (role === "emisor") {
+        document.getElementById("enviarComandaBtn").onclick = () => {
+          const seleccionados = [...document.querySelectorAll('#productos input:checked')]
+            .map(el => el.value);
+
+          if (seleccionados.length > 0) {
+            socket.emit("sendOrder", seleccionados);
+          }
+        };
+      }
+
+      if (role === "receptor") {
+        socket.on("receiveOrder", (data) => {
+          const li = document.createElement("li");
+          li.textContent = `Comanda de ${data.from}: ${data.products.join(", ")}`;
+          const btn = document.createElement("button");
+
+          btn.textContent = "Enviar a servidor local";
+          btn.onclick = async () => {
+            const res = await fetch('/procesar-comanda', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+
+            const result = await res.text();
+            alert("Respuesta servidor: " + result);
+
+          };
+          li.appendChild(btn);
+          document.getElementById("listaComandas").appendChild(li);
+        });
+      }
+    };
+  </script>
+</body>
+</html>
