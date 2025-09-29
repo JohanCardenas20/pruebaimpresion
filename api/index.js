@@ -71,4 +71,4 @@ app.post("/procesar-comanda", (req, res) => {
 });
 
 // Exportamos la aplicación Express para que Vercel la maneje como una función serverless
-module.exports = app;
+module.exports = app;  // Cambiar a esta línea
