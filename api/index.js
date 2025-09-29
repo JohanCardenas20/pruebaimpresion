@@ -1,20 +1,27 @@
 const express = require("express");
 const { Server } = require("socket.io");
 const axios = require("axios"); // Usar axios para hacer peticiones HTTP
+const cors = require('cors');
 
 // Crear la aplicación Express
 const app = express();
 
 // Configuración de CORS para Socket.io
-const io = new Server(app, {
-  cors: {
-    origin: "*",
-  },
-});
+app.use(cors({
+  origin: '*', // O puedes colocar el dominio específico de tu frontend
+  methods: ['GET', 'POST'],
+}));
 
 // Middleware
 app.use(express.json()); // Analizar los datos JSON entrantes
 app.use(express.static("public")); // Servir archivos estáticos desde la carpeta public
+
+// Inicializar el servidor de Socket.io
+const io = new Server(app, {
+  cors: {
+    origin: '*', // Asegúrate de permitir las conexiones desde tu frontend
+  }
+});
 
 // Manejo de las conexiones de Socket.io
 io.on("connection", (socket) => {

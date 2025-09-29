@@ -37,7 +37,7 @@
 
     document.getElementById("connectBtn").onclick = () => {
       const role = document.getElementById("role").value;
-      socket = io();
+      socket = io("https://pruebaimpresion.vercel.app/"); // Cambia esto a tu dominio 
 
       socket.on("connect", () => {
         socket.emit("setRole", role);
@@ -66,17 +66,27 @@
           const btn = document.createElement("button");
 
           btn.textContent = "Enviar a servidor local";
+
           btn.onclick = async () => {
-            const res = await fetch('/procesar-comanda', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data),
-            });
+            try {
+              const res = await fetch('/procesar-comanda', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+              });
 
-            const result = await res.text();
-            alert("Respuesta servidor: " + result);
+              if (!res.ok) {
+                throw new Error(`Error: ${res.status} - ${res.statusText}`);
+              }
 
+              const result = await res.text();
+              alert("Respuesta servidor: " + result);
+            } catch (error) {
+              console.error('Error al enviar la comanda:', error);
+              alert('Error al procesar la comanda: ' + error.message);
+            }
           };
+
           li.appendChild(btn);
           document.getElementById("listaComandas").appendChild(li);
         });
