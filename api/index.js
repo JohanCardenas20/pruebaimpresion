@@ -1,7 +1,7 @@
 const express = require("express");
 const { Server } = require("socket.io");
 const http = require("http");  // Usamos http.Server para crear el servidor
-const axios = require('axios');  // Asegúrate de importar axios
+const axios = require('axios');
 
 // Crear la aplicación Express
 const app = express();
@@ -80,4 +80,4 @@ server.listen(3000, () => {
 });
 
 // Exportamos el servidor HTTP para que Vercel lo maneje
-module.exports = server;
+module.exports = server;  // Aquí exportamos el servidor HTTP
