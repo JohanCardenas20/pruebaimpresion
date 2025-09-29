@@ -37,9 +37,10 @@
 
     document.getElementById("connectBtn").onclick = () => {
       const role = document.getElementById("role").value;
-      socket = io();
+      socket = io("https://pruebaimpresion.vercel.app");
 
       socket.on("connect", () => {
+        console.log("Conectado a Socket.io con id:", socket.id); // Agregado para debug
         socket.emit("setRole", role);
         if (role === "emisor") {
           document.getElementById("emisorUI").classList.remove("hidden");
@@ -48,10 +49,13 @@
         }
       });
 
+
       if (role === "emisor") {
         document.getElementById("enviarComandaBtn").onclick = () => {
           const seleccionados = [...document.querySelectorAll('#productos input:checked')]
             .map(el => el.value);
+
+          console.log("Comanda enviada:", seleccionados);  // Verifica qué productos están seleccionados
 
           if (seleccionados.length > 0) {
             socket.emit("sendOrder", seleccionados);
@@ -66,6 +70,7 @@
           const btn = document.createElement("button");
 
           btn.textContent = "Enviar a servidor local";
+
           btn.onclick = async () => {
             const res = await fetch('/procesar-comanda', {
               method: 'POST',
@@ -74,9 +79,9 @@
             });
 
             const result = await res.text();
-            alert("Respuesta servidor: " + result);
-
+            alert("Respuesta servidor: " + result);  // Asegúrate de que el servidor responde correctamente
           };
+
           li.appendChild(btn);
           document.getElementById("listaComandas").appendChild(li);
         });
