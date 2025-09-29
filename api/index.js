@@ -10,11 +10,13 @@ const app = express();
 const server = http.createServer(app);
 
 // Configuración de Socket.io
-const io = new Server(server, {
+const io = new Server(app, {
   cors: {
-    origin: "*",
+    origin: "https://pruebaimpresion.vercel.app/", // Cambia esto a tu dominio
+    methods: ["GET", "POST"],
   },
 });
+
 
 // Middleware
 app.use(express.json());  // Analizar los datos JSON entrantes
