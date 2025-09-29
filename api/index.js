@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
     };
 
     // Usar axios para enviar la comanda al servidor local
-    axios.post('http://localhost:3001/procesar-comanda', comandaData)
+    axios.post('https://my-backend-app.vercel.app/procesar-comanda', comandaData)
       .then(response => {
         console.log('Comanda procesada:', response.data);
       })
