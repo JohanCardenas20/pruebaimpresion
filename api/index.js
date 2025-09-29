@@ -1,24 +1,20 @@
 const express = require("express");
 const { Server } = require("socket.io");
-const http = require("http");  // Usamos http.Server para crear el servidor
-const axios = require('axios');
+const axios = require("axios"); // Usar axios para hacer peticiones HTTP
 
 // Crear la aplicación Express
 const app = express();
 
-// Crear el servidor HTTP
-const server = http.createServer(app);
-
-// Configuración de Socket.io
-const io = new Server(server, {
+// Configuración de CORS para Socket.io
+const io = new Server(app, {
   cors: {
     origin: "*",
   },
 });
 
 // Middleware
-app.use(express.json());  // Analizar los datos JSON entrantes
-app.use(express.static("public"));  // Servir archivos estáticos desde la carpeta public
+app.use(express.json()); // Analizar los datos JSON entrantes
+app.use(express.static("public")); // Servir archivos estáticos desde la carpeta public
 
 // Manejo de las conexiones de Socket.io
 io.on("connection", (socket) => {
@@ -48,7 +44,7 @@ io.on("connection", (socket) => {
         console.error('Error al procesar la comanda:', error);
       });
 
-    // Reenviar la comanda a los receptores
+    // Reenviar a todos los receptores
     io.sockets.sockets.forEach((s) => {
       if (s.role === "receptor") {
         s.emit("receiveOrder", comandaData);
@@ -74,10 +70,5 @@ app.post("/procesar-comanda", (req, res) => {
   });
 });
 
-// Iniciar el servidor HTTP en el puerto 3000
-server.listen(3000, () => {
-  console.log('Servidor corriendo en http://localhost:3000');
-});
-
-// Exportamos el servidor HTTP para que Vercel lo maneje
-module.exports = server;  // Aquí exportamos el servidor HTTP
+// Exportamos la aplicación Express para que Vercel la maneje como una función serverless
+module.exports = app;
